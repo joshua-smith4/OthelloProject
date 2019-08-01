@@ -7,6 +7,7 @@ parser.add_argument('--addr', type=str)
 parser.add_argument('--bport',type=int)
 parser.add_argument('--port', type=int)
 parser.add_argument("--msg", type=str)
+parser.add_argument('--delay', type=float, default=0.1)
 parser.add_argument('-m', '--machine', type=str, default='machine1')
 args = parser.parse_args()
 
@@ -21,5 +22,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         data = s.recvfrom(1024)
         print(data)
         i+=1
-        time.sleep(0.1)
+        time.sleep(args.delay)
 
