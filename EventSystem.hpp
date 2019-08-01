@@ -27,6 +27,7 @@ namespace evt
         private:
             Event() : id(0u), args() {}
         public:
+            Event(event_id i) : id(i), args() {}
             Event(event_id i, std::tuple<Args...> a) : id(i), args(a) {}
             unsigned id;
             std::tuple<Args...> args; 
@@ -35,11 +36,14 @@ namespace evt
         using handler_type = std::function<Ret(Args...)>;
 
         EventSystem(size_t n)
-            : handler_map(), thread_pool(), event_pool(), 
+            : handler_map(), universal_handlers(),
+            thread_pool(), event_pool(), 
             _continue(true), num_threads(n),
             event_pool_mtx(false), cv_mtx(), event_pool_cv()
         {
-            for(auto i = 0u; i < num_threads; ++i) thread_pool.emplace_back(std::thread(&EventSystem<Ret(Args...)>::worker_routine, this));
+            for(auto i = 0u; i < num_threads; ++i) 
+                thread_pool.emplace_back(
+                        std::thread(&EventSystem::worker_routine, this));
         }
 
         ~EventSystem()
@@ -55,9 +59,17 @@ namespace evt
         {
             handler_map[evt_id].push_back(handler);
         }
+        void add_universal_handler(handler_type handler)
+        {
+            universal_handlers.push_back(handler);
+        }
         void remove_handlers(event_id evt_id)
         {
             handler_map.erase(evt_id);
+        }
+        void remove_universal_handers()
+        {
+            universal_handlers.clear();
         }
         void post(Event const& evt)
         {
@@ -84,11 +96,13 @@ namespace evt
                 }
                 if(!foundEvent) return;
                 // TODO: may need to protect handler_map with mutex as well
+                for(auto&& handler : universal_handlers) 
+                    std::apply(handler, evt.args);
                 auto handlers_ptr = handler_map.find(evt.id);
                 if(handlers_ptr == handler_map.end()) return;
-                for(auto&& elem : handlers_ptr->second)
+                for(auto&& handler : handlers_ptr->second)
                 {
-                    std::apply(elem, evt.args);
+                    std::apply(handler, evt.args);
                 }
         }
 
@@ -112,6 +126,7 @@ namespace evt
         }
 
         std::map<event_id,std::vector<handler_type>> handler_map; 
+        std::vector<handler_type> universal_handlers;
         std::vector<std::thread> thread_pool;
         std::queue<Event> event_pool;
 
