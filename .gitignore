@@ -1,3 +1,6 @@
 *.swp
 bin
 node_modules
+*.cfg
+lib
+build
