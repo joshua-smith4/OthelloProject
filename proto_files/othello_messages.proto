@@ -4,6 +4,17 @@ import "google/protobuf/timestamp.proto";
 
 package othello.messages;
 
+// Registry messages
+message FoundGameServer {
+    string ip = 1;
+    uint32 port = 2;
+}
+
+message AuthenticationResult {
+    bool isAuthenticated = 1;
+    string token = 2;
+}
+
 // Game Server messages
 enum Player {
     EMPTY = 0;
@@ -11,17 +22,12 @@ enum Player {
     BLACK = 2;
 }
 
-message Authenticated {
-    bool isAuthenticated = 1;
-    string token = 2;
-    google.protobuf.Timestamp exp_time = 3;
+message GameState {
+    repeated Player board = 1;
+    uint32 x_dim = 2;
+    uint32 y_dim = 3;
+    Player turn = 4;
 }
-
-message Address {
-    string ip = 1;
-    uint32 port = 2;
-}
-
 
 // Client Messages
 

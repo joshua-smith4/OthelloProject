@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Server.hpp"
+#include "UDPServer.hpp"
 
 class EchoServer : public server::UDPServer
 {
