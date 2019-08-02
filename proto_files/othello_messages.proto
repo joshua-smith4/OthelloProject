@@ -1,0 +1,47 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+
+package othello.messages;
+
+// Game Server messages
+enum Player {
+    EMPTY = 0;
+    WHITE = 1;
+    BLACK = 2;
+}
+
+message Authenticated {
+    bool isAuthenticated = 1;
+    string token = 2;
+    google.protobuf.Timestamp exp_time = 3;
+}
+
+message Address {
+    string ip = 1;
+    uint32 port = 2;
+}
+
+
+// Client Messages
+
+message Login {
+    string username = 1;
+    string password = 2;
+}
+
+message Logout {
+    string token = 1;
+}
+
+message Heartbeat {
+    string token = 1;
+}
+
+message Move {
+    string token = 1;
+    uint32 x = 2;
+    uint32 y = 3;
+    Player player = 4;
+}
+    

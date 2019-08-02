@@ -4,3 +4,6 @@ node_modules
 *.cfg
 lib
 build
+proto
+__pycache__
+build_protobufs.sh
