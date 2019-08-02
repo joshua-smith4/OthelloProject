@@ -2,31 +2,27 @@
 
 #include "Server.hpp"
 
-template <std::size_t MAX_MESSAGE_SIZE>
-class EchoServer : public server::UDPServer<MAX_MESSAGE_SIZE>
+class EchoServer : public server::UDPServer
 {
 public:
-    EchoServer(boost::asio::io_context& io_context, unsigned short port)
-        : server::UDPServer<MAX_MESSAGE_SIZE>(io_context, port)
+    EchoServer(boost::asio::io_context& io_context, unsigned short port, size_t const MAX_MESSAGE_SIZE)
+        : server::UDPServer(io_context, port, MAX_MESSAGE_SIZE)
     {
     }
 private:
-    void handle_receive(boost::system::error_code const& error, std::size_t bytes_recd) override final
+    void handle_receive(
+            std::shared_ptr<std::vector<char>> msg,
+            std::shared_ptr<boost::asio::ip::udp::endpoint> sender,
+            boost::system::error_code const& error, 
+            std::size_t bytes_recd) override final
     {
         if(!error && bytes_recd > 0)
         {
-            this->_socket.async_send_to(boost::asio::buffer(this->recv_buffer, bytes_recd), this->sender_endpoint, 
-                    [this](boost::system::error_code const& err, std::size_t bs){ this->handle_send(err, bs); });
+            this->_socket.async_send_to(
+                    boost::asio::buffer(*msg, bytes_recd), 
+                    *sender,
+                    [](boost::system::error_code const&, std::size_t){});
         }
-        else
-        {
-            this->start_receive();
-        }
-    }
-
-    void handle_send(boost::system::error_code const & error, std::size_t bytes_sent) override final
-    {
-        this->start_receive();
     }
 };
 
@@ -42,7 +38,7 @@ int main(int argc, char* argv[])
 
     boost::asio::io_context io_context;
 
-    EchoServer<1024u> s(io_context, std::atoi(argv[1]));
+    EchoServer s(io_context, std::atoi(argv[1]), 1024u);
 
     io_context.run();
   }
