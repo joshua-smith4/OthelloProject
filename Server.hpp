@@ -23,9 +23,7 @@ namespace server
       UDPServer(boost::asio::io_context& io_context, unsigned short port, size_t const MAX_MESSAGE_SIZE)
         : _socket(io_context, boost_ip::udp::endpoint(boost_ip::udp::v4(), port)),
           MAX_MESSAGE_SIZE(MAX_MESSAGE_SIZE)
-      {
-          start_receive();
-      }
+      { start_receive(); }
 
       virtual ~UDPServer() {}
 
