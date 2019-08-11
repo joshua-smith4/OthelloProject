@@ -1,0 +1,3 @@
+[submodule "websocket_server_beast"]
+	path = websocket_server_beast
+	url = git@github.com:joshua-smith4/websocket_server_beast.git
